@@ -20,8 +20,12 @@ def deal(str):
         re.encoding="UTF-8"
         soup=bs4.BeautifulSoup(re.text,'lxml')
         contex=soup.find_all('div',class_="course-card-container")
-        #用于第一个链接具体内容，结构：课程名 等级 人数 备注 链接
+        #用于第一个链接具体内容，结构：课程名 等级 人数 时长 分数 备注 链接
         for index in range(len(contex)):
             spans=contex[index].find_all('span')
-            cons.append([contex[index].h3.text,spans[0].text,spans[1].text,contex[index].p.text,contex[index].a.get('href')])
+            rs=requests.get('https://www.imooc.com'+contex[index].a.get('href'))
+            s=bs4.BeautifulSoup(rs.text,'lxml')
+            lon=s.find_all('div',class_='static-item l')
+            grade=s.find('div',class_='static-item l score-btn')
+            cons.append([contex[index].h3.text,spans[0].text,spans[1].text,lon[2].find_all('span',class_="meta-value")[0].text,grade.find_all('span',class_="meta-value")[0].text,contex[index].p.text,contex[index].a.get('href')])
     return cons
